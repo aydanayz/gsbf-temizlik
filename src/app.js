@@ -386,3 +386,13 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 3000);
 }
+
+// ── MOBİL MENÜ ───────────────────────────────────────────────────────────────
+document.getElementById("mobile-menu-btn").addEventListener("click", () => {
+  document.getElementById("mobile-nav").classList.toggle("open");
+});
+
+document.getElementById("mobile-logout").addEventListener("click", (e) => {
+  e.preventDefault();
+  signOut(auth);
+});
