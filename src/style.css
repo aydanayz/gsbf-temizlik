@@ -472,3 +472,117 @@ select.field-input {
   white-space: nowrap;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── YÖNETİM ── */
+.yonetim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mgmt-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 20px;
+}
+.mgmt-card.full { grid-column: 1 / -1; }
+
+.mgmt-header { margin-bottom: 16px; }
+.mgmt-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+.mgmt-sub { font-size: 12px; color: #aaa; }
+
+.mgmt-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.mgmt-add-row .field-input { flex: 1; }
+.mgmt-add-row .btn-primary { flex-shrink: 0; white-space: nowrap; }
+
+.mgmt-list { display: flex; flex-direction: column; gap: 4px; }
+
+.mgmt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+.mgmt-item-name { font-size: 13px; color: #1a1a1a; }
+
+.btn-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.btn-del:hover { color: #e53935; background: #fff5f5; }
+
+.empty-hint { font-size: 12px; color: #bbb; padding: 4px 0; }
+
+/* Atama */
+.atama-wrap { border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
+
+.atama-header {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0;
+  padding: 8px 16px;
+  background: #f5f5f7;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.atama-list { display: flex; flex-direction: column; }
+
+.atama-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  border-top: 1px solid #f0f0f0;
+}
+.atama-row:first-child { border-top: none; }
+
+.atama-personel {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.atama-alanlar {
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.atama-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+  font-size: 12px;
+  color: #444;
+  transition: all .12s;
+}
+.atama-check:hover { border-color: #1a1a1a; }
+.atama-check input { accent-color: #1a1a1a; width: 13px; height: 13px; cursor: pointer; }
+.atama-check:has(input:checked) { background: #f0f0f0; border-color: #1a1a1a; }
