@@ -28,16 +28,16 @@
         </div>
         <div class="field-group">
           <label class="field-label">Şifre</label>
-          <input type="password" id="login-password" class="field-input" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <input type="password" id="login-password" class="field-input" placeholder="••••••••" autocomplete="current-password">
         </div>
         <div id="login-error" class="login-error" style="display:none"></div>
-        <button id="login-btn" class="btn-primary full" onclick="doLogin()">Giriş Yap</button>
+        <button id="login-btn" class="btn-primary full">Giriş Yap</button>
       </div>
     </div>
   </div>
 
   <!-- APP -->
-  <div id="page-app" class="page">
+  <div id="page-app" class="page" style="display:none">
     <aside class="sidebar">
       <div class="sidebar-top">
         <div class="sidebar-brand">
@@ -61,7 +61,7 @@
         <div class="user-row">
           <div class="user-avatar-sm" id="user-initials"></div>
           <span class="user-email-sm" id="user-email-display"></span>
-          <button class="logout-btn" onclick="doLogout()" title="Çıkış">
+          <button class="logout-btn" id="logout-btn" title="Çıkış">
             <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M13 15l4-5-4-5M17 10H7M7 3H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
@@ -166,15 +166,15 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
                 <span>Dosya seç veya sürükle bırak</span>
               </label>
-              <input type="file" id="f-gorsel" accept="image/*" multiple style="display:none" onchange="handleFiles(this)">
+              <input type="file" id="f-gorsel" accept="image/*" multiple style="display:none">
               <div id="file-preview" class="file-preview"></div>
             </div>
 
           </div>
 
           <div class="form-actions">
-            <button class="btn-ghost" onclick="clearForm()">Temizle</button>
-            <button class="btn-primary" id="submit-btn" onclick="submitForm()">Formu Gönder</button>
+            <button class="btn-ghost" id="btn-clear">Temizle</button>
+            <button class="btn-primary" id="submit-btn">Formu Gönder</button>
           </div>
         </div>
       </div>
@@ -187,8 +187,8 @@
             <p class="view-sub">Tüm kontrol geçmişi</p>
           </div>
           <div class="header-filters">
-            <input type="text" class="search-input" placeholder="Ara..." oninput="filterRecords()" id="search-input">
-            <select class="filter-select" id="filter-durum" onchange="filterRecords()">
+            <input type="text" class="search-input" id="search-input" placeholder="Ara...">
+            <select class="filter-select" id="filter-durum">
               <option value="">Tüm durumlar</option>
               <option value="UYGUN">Uygun</option>
               <option value="EKSİK">Eksik</option>
