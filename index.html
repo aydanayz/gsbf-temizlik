@@ -55,6 +55,10 @@
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             Kayıtlar
           </a>
+          <a href="#" class="nav-item" data-page="yonetim">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 17c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Yönetim
+          </a>
         </nav>
       </div>
       <div class="sidebar-bottom">
@@ -85,25 +89,13 @@
               <label class="card-label">Sorumlu Personel <span class="req">*</span></label>
               <select id="f-personel" class="field-input">
                 <option value="">Seçiniz</option>
-                <option>Sevim KADERCİ</option>
-                <option>Ali YILMAZ</option>
-                <option>Fatma ÖZ</option>
-                <option>Mehmet KAYA</option>
               </select>
             </div>
 
             <div class="form-card">
               <label class="card-label">Kontrol Edilen Alan <span class="req">*</span></label>
               <select id="f-alan" class="field-input">
-                <option value="">Seçiniz</option>
-                <option>A Blok Giriş Kat</option>
-                <option>A Blok 1. Kat</option>
-                <option>A Blok 2. Kat</option>
-                <option>B Blok Giriş Kat</option>
-                <option>B Blok 1. Kat</option>
-                <option>B Blok 2. Kat</option>
-                <option>Kantin</option>
-                <option>Tuvaletler</option>
+                <option value="">Personel seçiniz</option>
               </select>
             </div>
 
@@ -143,19 +135,8 @@
 
             <div class="form-card">
               <label class="card-label">Kontrol Eden <span class="req">*</span></label>
-              <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" name="kontrol_eden" value="Aydan AYAZ" checked>
-                  <span>Aydan AYAZ</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="kontrol_eden" value="Yunus AKBAŞ">
-                  <span>Yunus AKBAŞ</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="kontrol_eden" value="Şenay TANRIÖVER">
-                  <span>Şenay TANRIÖVER</span>
-                </label>
+              <div class="radio-group" id="kontrol-eden-group">
+                <span class="empty-hint">Yönetim sayfasından personel ekleyiniz</span>
               </div>
             </div>
 
@@ -171,7 +152,6 @@
             </div>
 
           </div>
-
           <div class="form-actions">
             <button class="btn-ghost" id="btn-clear">Temizle</button>
             <button class="btn-primary" id="submit-btn">Formu Gönder</button>
@@ -197,6 +177,65 @@
         </div>
         <div id="records-list" class="records-list">
           <div class="empty-state">Yükleniyor...</div>
+        </div>
+      </div>
+
+      <!-- YÖNETİM VIEW -->
+      <div id="view-yonetim" class="view">
+        <div class="view-header">
+          <div>
+            <h2 class="view-title">Yönetim</h2>
+            <p class="view-sub">Personel ve kontrol alanlarını yönetin</p>
+          </div>
+        </div>
+
+        <div class="yonetim-grid">
+
+          <!-- PERSONEL -->
+          <div class="mgmt-card">
+            <div class="mgmt-header">
+              <h3 class="mgmt-title">Personel</h3>
+            </div>
+            <div class="mgmt-add-row">
+              <input type="text" id="personel-ad" class="field-input" placeholder="Ad Soyad">
+              <button class="btn-primary" id="btn-personel-ekle">Ekle</button>
+            </div>
+            <div id="personel-list" class="mgmt-list">
+              <div class="empty-hint">Henüz personel eklenmedi</div>
+            </div>
+          </div>
+
+          <!-- KONTROL ALANLARI -->
+          <div class="mgmt-card">
+            <div class="mgmt-header">
+              <h3 class="mgmt-title">Kontrol Alanları</h3>
+            </div>
+            <div class="mgmt-add-row">
+              <input type="text" id="alan-ad" class="field-input" placeholder="Alan adı (örn: A Blok 1. Kat)">
+              <button class="btn-primary" id="btn-alan-ekle">Ekle</button>
+            </div>
+            <div id="alan-list" class="mgmt-list">
+              <div class="empty-hint">Henüz alan eklenmedi</div>
+            </div>
+          </div>
+
+          <!-- PERSONEL-ALAN ATAMA -->
+          <div class="mgmt-card full">
+            <div class="mgmt-header">
+              <h3 class="mgmt-title">Personel — Alan Ataması</h3>
+              <p class="mgmt-sub">Personel seçildiğinde kontrol alanları otomatik gelsin</p>
+            </div>
+            <div class="atama-wrap">
+              <div class="atama-header">
+                <span>Personel</span>
+                <span>Atanan Alanlar</span>
+              </div>
+              <div id="atama-list" class="atama-list">
+                <div class="empty-hint">Önce personel ve alan ekleyiniz</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
