@@ -76,3 +76,4 @@ Birkaç dakika sonra: https://KULLANICI.github.io/gsbf-temizlik
 
 Firebase Storage yeni projelerde Blaze (ücretli) plan gerektirebilir.
 Cloudinary ücretsiz plan: 25 GB depolama + 25 GB/ay bant genişliği.
+
