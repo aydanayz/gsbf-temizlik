@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy, serverTimestamp }
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy, where, serverTimestamp, Timestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -23,7 +23,7 @@ const db   = getFirestore(app);
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let personelList = [];
 let alanList     = [];
-let atamaMap     = {};  // { personelId: [alanId, ...] }
+let atamaMap     = {};
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 document.getElementById("login-btn").addEventListener("click", doLogin);
@@ -57,31 +57,54 @@ function showLoginError(msg) {
 
 document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   if (user) {
     document.getElementById("page-login").classList.remove("active");
     document.getElementById("page-app").style.display = "flex";
     document.getElementById("user-initials").textContent = user.email.slice(0, 2).toUpperCase();
     document.getElementById("user-email-display").textContent = user.email;
-    loadYonetimData();
+    await loadYonetimData();
+    await cleanOldRecords();
   } else {
     document.getElementById("page-login").classList.add("active");
     document.getElementById("page-app").style.display = "none";
   }
 });
 
+// ── ESKİ KAYITLARI TEMİZLE (1 aydan eski) ────────────────────────────────────
+async function cleanOldRecords() {
+  try {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    const cutoff = Timestamp.fromDate(oneMonthAgo);
+    const snap = await getDocs(
+      query(collection(db, "kontroller"), where("tarih", "<", cutoff))
+    );
+    const deletes = snap.docs.map(d => deleteDoc(doc(db, "kontroller", d.id)));
+    await Promise.all(deletes);
+    if (snap.docs.length > 0) console.log(`${snap.docs.length} eski kayıt silindi.`);
+  } catch (e) { console.error("Temizleme hatası:", e); }
+}
+
 // ── NAV ───────────────────────────────────────────────────────────────────────
-document.querySelectorAll(".nav-item").forEach(link => {
+document.querySelectorAll(".nav-item[data-page]").forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
     const page = link.dataset.page;
     document.querySelectorAll(".nav-item").forEach(l => l.classList.remove("active"));
-    link.classList.add("active");
+    document.querySelectorAll(`.nav-item[data-page="${page}"]`).forEach(l => l.classList.add("active"));
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     document.getElementById("view-" + page).classList.add("active");
+    document.getElementById("mobile-nav").classList.remove("open");
     if (page === "kayitlar") loadRecords();
   });
 });
+
+// ── MOBİL MENÜ ────────────────────────────────────────────────────────────────
+document.getElementById("mobile-menu-btn").addEventListener("click", () => {
+  document.getElementById("mobile-nav").classList.toggle("open");
+});
+document.getElementById("mobile-logout").addEventListener("click", e => { e.preventDefault(); signOut(auth); });
 
 // ── YÖNETİM DATA ──────────────────────────────────────────────────────────────
 async function loadYonetimData() {
@@ -117,9 +140,8 @@ function renderPersonelList() {
         <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
     </div>`).join("");
-  el.querySelectorAll(".btn-del").forEach(btn => {
-    btn.addEventListener("click", () => deleteItem(btn.dataset.col, btn.dataset.id));
-  });
+  el.querySelectorAll(".btn-del").forEach(btn =>
+    btn.addEventListener("click", () => deleteItem(btn.dataset.col, btn.dataset.id)));
 }
 
 function renderAlanList() {
@@ -132,17 +154,16 @@ function renderAlanList() {
         <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
     </div>`).join("");
-  el.querySelectorAll(".btn-del").forEach(btn => {
-    btn.addEventListener("click", () => deleteItem(btn.dataset.col, btn.dataset.id));
-  });
+  el.querySelectorAll(".btn-del").forEach(btn =>
+    btn.addEventListener("click", () => deleteItem(btn.dataset.col, btn.dataset.id)));
 }
 
 function renderAtamaList() {
   const el = document.getElementById("atama-list");
-  if (!personelList.length) { el.innerHTML = '<div class="empty-hint">Önce personel ekleyiniz</div>'; return; }
+  if (!personelList.length) { el.innerHTML = '<div class="empty-hint" style="padding:16px">Önce personel ekleyiniz</div>'; return; }
   el.innerHTML = personelList.map(p => {
     const assigned = atamaMap[p.id] || [];
-    const alanCheckboxes = alanList.map(a => `
+    const checkboxes = alanList.map(a => `
       <label class="atama-check">
         <input type="checkbox" data-personel="${p.id}" data-alan="${a.id}" ${assigned.includes(a.id) ? "checked" : ""}>
         <span>${a.ad}</span>
@@ -150,7 +171,7 @@ function renderAtamaList() {
     return `
       <div class="atama-row">
         <div class="atama-personel">${p.ad}</div>
-        <div class="atama-alanlar">${alanList.length ? alanCheckboxes : '<span class="empty-hint">Alan yok</span>'}</div>
+        <div class="atama-alanlar">${alanList.length ? checkboxes : '<span class="empty-hint">Alan yok</span>'}</div>
       </div>`;
   }).join("");
 
@@ -159,18 +180,15 @@ function renderAtamaList() {
       const pid = cb.dataset.personel;
       const aid = cb.dataset.alan;
       if (!atamaMap[pid]) atamaMap[pid] = [];
-      if (cb.checked) {
-        if (!atamaMap[pid].includes(aid)) atamaMap[pid].push(aid);
-      } else {
-        atamaMap[pid] = atamaMap[pid].filter(x => x !== aid);
-      }
+      if (cb.checked) { if (!atamaMap[pid].includes(aid)) atamaMap[pid].push(aid); }
+      else { atamaMap[pid] = atamaMap[pid].filter(x => x !== aid); }
       await setDoc(doc(db, "ayarlar", "atamalar"), atamaMap);
       updateFormSelects();
     });
   });
 }
 
-// ── PERSONEL EKLE / SİL ───────────────────────────────────────────────────────
+// ── PERSONEL / ALAN EKLE-SİL ──────────────────────────────────────────────────
 document.getElementById("btn-personel-ekle").addEventListener("click", async () => {
   const input = document.getElementById("personel-ad");
   const ad = input.value.trim();
@@ -191,12 +209,8 @@ document.getElementById("btn-alan-ekle").addEventListener("click", async () => {
   renderYonetim(); updateFormSelects();
 });
 
-document.getElementById("personel-ad").addEventListener("keydown", e => {
-  if (e.key === "Enter") document.getElementById("btn-personel-ekle").click();
-});
-document.getElementById("alan-ad").addEventListener("keydown", e => {
-  if (e.key === "Enter") document.getElementById("btn-alan-ekle").click();
-});
+document.getElementById("personel-ad").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("btn-personel-ekle").click(); });
+document.getElementById("alan-ad").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("btn-alan-ekle").click(); });
 
 async function deleteItem(colName, id) {
   await deleteDoc(doc(db, colName, id));
@@ -207,9 +221,7 @@ async function deleteItem(colName, id) {
     updateKontrolEdenGroup();
   } else {
     alanList = alanList.filter(a => a.id !== id);
-    for (const pid in atamaMap) {
-      atamaMap[pid] = atamaMap[pid].filter(aid => aid !== id);
-    }
+    for (const pid in atamaMap) atamaMap[pid] = atamaMap[pid].filter(aid => aid !== id);
     await setDoc(doc(db, "ayarlar", "atamalar"), atamaMap);
   }
   renderYonetim(); updateFormSelects();
@@ -226,9 +238,9 @@ function updateFormSelects() {
 }
 
 function updateAlanSelect() {
-  const pSel  = document.getElementById("f-personel");
-  const aSel  = document.getElementById("f-alan");
-  const pid   = pSel.value;
+  const pSel = document.getElementById("f-personel");
+  const aSel = document.getElementById("f-alan");
+  const pid  = pSel.value;
   const atananIds = pid ? (atamaMap[pid] || []) : [];
   const atananAlanlar = alanList.filter(a => atananIds.includes(a.id));
   if (!pid) {
@@ -243,6 +255,7 @@ function updateAlanSelect() {
 
 document.getElementById("f-personel").addEventListener("change", updateAlanSelect);
 
+// ── KONTROL EDEN — Personel listesinden otomatik gelir ────────────────────────
 function updateKontrolEdenGroup() {
   const group = document.getElementById("kontrol-eden-group");
   if (!personelList.length) {
@@ -255,6 +268,29 @@ function updateKontrolEdenGroup() {
       <span>${p.ad}</span>
     </label>`).join("");
 }
+
+// ── ALAN DURUMU / KONTROL TÜRÜ BAĞLANTISI ────────────────────────────────────
+document.addEventListener("change", e => {
+  if (e.target.name === "alan_durumu") {
+    const eksik = e.target.value === "EKSİK";
+    const radios = document.querySelectorAll('input[name="kontrol_turu"]');
+    if (eksik) {
+      // 2. kontrol zorunlu
+      radios.forEach(r => {
+        if (r.value.startsWith("2.")) { r.checked = true; r.disabled = false; }
+        else { r.checked = false; r.disabled = true; }
+      });
+      showToast("EKSİK seçildi — 2. Kontrol zorunlu");
+    } else {
+      // Uygun: her iki seçenek serbest, 1. kontrol varsayılan
+      radios.forEach(r => {
+        r.disabled = false;
+        if (r.value.startsWith("1.")) r.checked = true;
+        else r.checked = false;
+      });
+    }
+  }
+});
 
 // ── CLOUDINARY ────────────────────────────────────────────────────────────────
 async function uploadToCloudinary(file) {
@@ -289,6 +325,8 @@ document.getElementById("btn-clear").addEventListener("click", clearForm);
 function clearForm() {
   document.getElementById("f-personel").value = "";
   updateAlanSelect();
+  const radios = document.querySelectorAll('input[name="kontrol_turu"]');
+  radios.forEach(r => { r.disabled = false; });
   const kt = document.querySelectorAll('input[name="kontrol_turu"]');
   if (kt[0]) kt[0].checked = true;
   const ad = document.querySelectorAll('input[name="alan_durumu"]');
@@ -308,10 +346,16 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
   const alanDurumu  = document.querySelector('input[name="alan_durumu"]:checked')?.value;
   const kontrolEden = document.querySelector('input[name="kontrol_eden"]:checked')?.value;
 
-  if (!personelId) return alert("Sorumlu personel seçiniz.");
-  if (!alan)       return alert("Kontrol edilen alanı seçiniz.");
-  if (!alanDurumu) return alert("Alan durumu seçiniz.");
+  if (!personelId)  return alert("Sorumlu personel seçiniz.");
+  if (!alan)        return alert("Kontrol edilen alanı seçiniz.");
+  if (!alanDurumu)  return alert("Alan durumu seçiniz.");
   if (!kontrolEden) return alert("Kontrol eden kişiyi seçiniz.");
+
+  // EKSİK ise 2. kontrol zorunlu
+  if (alanDurumu === "EKSİK" && !kontrolTuru.startsWith("2.")) {
+    return alert("Alan durumu EKSİK seçildiğinde 2. Kontrol (Eksik Sonrası Tekrar Denetim) zorunludur.");
+  }
+
   if (!selectedFiles.length) return alert("En az bir görsel yükleyiniz.");
 
   const btn = document.getElementById("submit-btn");
@@ -386,13 +430,3 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 3000);
 }
-
-// ── MOBİL MENÜ ───────────────────────────────────────────────────────────────
-document.getElementById("mobile-menu-btn").addEventListener("click", () => {
-  document.getElementById("mobile-nav").classList.toggle("open");
-});
-
-document.getElementById("mobile-logout").addEventListener("click", (e) => {
-  e.preventDefault();
-  signOut(auth);
-});
