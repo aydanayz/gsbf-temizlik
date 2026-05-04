@@ -15,16 +15,14 @@
     <div class="login-bg">
       <div class="login-card">
         <div class="login-brand">
-          <div class="brand-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 6v8l7 4 7-4V6L10 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 2v12M3 6l7 4 7-4" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          </div>
-          <span class="brand-name">GSBF</span>
+          <img src="src/logo.png" class="login-logo" alt="SBÜ Logo">
+          <div class="login-brand-name">Sağlık Bilimleri Üniversitesi<br>GSBF Temizlik Kontrol Sistemi</div>
         </div>
         <h1 class="login-title">Giriş yap</h1>
-        <p class="login-sub">Temizlik kontrol sistemine hoş geldiniz</p>
+        <p class="login-sub">Yetkili personel girişi</p>
         <div class="field-group">
           <label class="field-label">E-posta</label>
-          <input type="email" id="login-email" class="field-input" placeholder="ornek@gsbf.edu.tr" autocomplete="email">
+          <input type="email" id="login-email" class="field-input" placeholder="ornek@sbu.edu.tr" autocomplete="email">
         </div>
         <div class="field-group">
           <label class="field-label">Şifre</label>
@@ -38,13 +36,43 @@
 
   <!-- APP -->
   <div id="page-app" class="page" style="display:none">
+
+    <!-- MOBILE TOPBAR -->
+    <div class="mobile-topbar">
+      <img src="src/logo.png" class="mobile-logo" alt="Logo">
+      <span class="mobile-title">GSBF Temizlik</span>
+      <button class="mobile-menu-btn" id="mobile-menu-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mobile-nav" id="mobile-nav">
+      <a href="#" class="nav-item active" data-page="form">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 10h6M7 7h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Kontrol Formu
+      </a>
+      <a href="#" class="nav-item" data-page="kayitlar">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Kayıtlar
+      </a>
+      <a href="#" class="nav-item" data-page="yonetim">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 17c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Yönetim
+      </a>
+      <a href="#" class="nav-item" id="mobile-logout">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 15l4-5-4-5M17 10H7M7 3H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Çıkış Yap
+      </a>
+    </div>
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-top">
         <div class="sidebar-brand">
-          <div class="brand-icon sm">
-            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 6v8l7 4 7-4V6L10 2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 2v12M3 6l7 4 7-4" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <img src="src/logo.png" class="sidebar-logo" alt="Logo">
+          <div class="sidebar-brand-text">
+            <span class="sidebar-brand-title">GSBF Temizlik</span>
+            <span class="sidebar-brand-sub">Kontrol Sistemi</span>
           </div>
-          <span>GSBF Temizlik</span>
         </div>
         <nav class="sidebar-nav">
           <a href="#" class="nav-item active" data-page="form">
@@ -95,7 +123,7 @@
             <div class="form-card">
               <label class="card-label">Kontrol Edilen Alan <span class="req">*</span></label>
               <select id="f-alan" class="field-input">
-                <option value="">Personel seçiniz</option>
+                <option value="">Önce personel seçiniz</option>
               </select>
             </div>
 
@@ -188,10 +216,8 @@
             <p class="view-sub">Personel ve kontrol alanlarını yönetin</p>
           </div>
         </div>
-
         <div class="yonetim-grid">
 
-          <!-- PERSONEL -->
           <div class="mgmt-card">
             <div class="mgmt-header">
               <h3 class="mgmt-title">Personel</h3>
@@ -205,13 +231,12 @@
             </div>
           </div>
 
-          <!-- KONTROL ALANLARI -->
           <div class="mgmt-card">
             <div class="mgmt-header">
               <h3 class="mgmt-title">Kontrol Alanları</h3>
             </div>
             <div class="mgmt-add-row">
-              <input type="text" id="alan-ad" class="field-input" placeholder="Alan adı (örn: A Blok 1. Kat)">
+              <input type="text" id="alan-ad" class="field-input" placeholder="Alan adı">
               <button class="btn-primary" id="btn-alan-ekle">Ekle</button>
             </div>
             <div id="alan-list" class="mgmt-list">
@@ -219,11 +244,10 @@
             </div>
           </div>
 
-          <!-- PERSONEL-ALAN ATAMA -->
           <div class="mgmt-card full">
             <div class="mgmt-header">
               <h3 class="mgmt-title">Personel — Alan Ataması</h3>
-              <p class="mgmt-sub">Personel seçildiğinde kontrol alanları otomatik gelsin</p>
+              <p class="mgmt-sub">Personel seçildiğinde kontrol alanları otomatik gelir</p>
             </div>
             <div class="atama-wrap">
               <div class="atama-header">
@@ -231,7 +255,7 @@
                 <span>Atanan Alanlar</span>
               </div>
               <div id="atama-list" class="atama-list">
-                <div class="empty-hint">Önce personel ve alan ekleyiniz</div>
+                <div class="empty-hint" style="padding:16px">Önce personel ve alan ekleyiniz</div>
               </div>
             </div>
           </div>
