@@ -21,7 +21,7 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
-window.doLogin = async function() {
+async function doLogin() {
   const email    = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value;
   const errEl    = document.getElementById("login-error");
@@ -37,26 +37,24 @@ window.doLogin = async function() {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (e) {
     const msgs = {
-      "auth/user-not-found":  "Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.",
-      "auth/wrong-password":  "Şifre hatalı.",
-      "auth/invalid-email":   "Geçersiz e-posta adresi.",
+      "auth/user-not-found":    "Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.",
+      "auth/wrong-password":    "Şifre hatalı.",
+      "auth/invalid-email":     "Geçersiz e-posta adresi.",
       "auth/too-many-requests": "Çok fazla deneme. Lütfen bekleyiniz.",
-      "auth/invalid-credential": "E-posta veya şifre hatalı."
+      "auth/invalid-credential":"E-posta veya şifre hatalı."
     };
-    showError(msgs[e.code] || "Giriş başarısız: " + e.message);
+    showError(msgs[e.code] || "Giriş başarısız.");
   } finally {
     btn.disabled = false;
     btn.textContent = "Giriş Yap";
   }
-};
+}
 
 function showError(msg) {
   const el = document.getElementById("login-error");
   el.textContent = msg;
   el.style.display = "block";
 }
-
-window.doLogout = () => signOut(auth);
 
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -71,7 +69,14 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// ── NAV ───────────────────────────────────────────────────────────────────────
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────────
+document.getElementById("login-btn").addEventListener("click", doLogin);
+document.getElementById("login-password").addEventListener("keydown", e => {
+  if (e.key === "Enter") doLogin();
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+
 document.querySelectorAll(".nav-item").forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
@@ -83,6 +88,12 @@ document.querySelectorAll(".nav-item").forEach(link => {
     if (page === "kayitlar") loadRecords();
   });
 });
+
+document.getElementById("submit-btn").addEventListener("click", submitForm);
+document.getElementById("btn-clear").addEventListener("click", clearForm);
+document.getElementById("f-gorsel").addEventListener("change", function() { handleFiles(this); });
+document.getElementById("search-input").addEventListener("input", filterRecords);
+document.getElementById("filter-durum").addEventListener("change", filterRecords);
 
 // ── CLOUDINARY ────────────────────────────────────────────────────────────────
 async function uploadToCloudinary(file) {
@@ -96,13 +107,13 @@ async function uploadToCloudinary(file) {
 }
 
 // ── FILES ─────────────────────────────────────────────────────────────────────
-window.selectedFiles = [];
+let selectedFiles = [];
 
-window.handleFiles = function(input) {
-  window.selectedFiles = Array.from(input.files).slice(0, 5);
+function handleFiles(input) {
+  selectedFiles = Array.from(input.files).slice(0, 5);
   const preview = document.getElementById("file-preview");
   preview.innerHTML = "";
-  window.selectedFiles.forEach(file => {
+  selectedFiles.forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
       const img = document.createElement("img");
@@ -112,10 +123,10 @@ window.handleFiles = function(input) {
     };
     reader.readAsDataURL(file);
   });
-};
+}
 
 // ── FORM ──────────────────────────────────────────────────────────────────────
-window.clearForm = function() {
+function clearForm() {
   document.getElementById("f-personel").value = "";
   document.getElementById("f-alan").value = "";
   document.querySelectorAll('input[name="kontrol_turu"]')[0].checked = true;
@@ -123,10 +134,10 @@ window.clearForm = function() {
   document.querySelectorAll('input[name="kontrol_eden"]')[0].checked = true;
   document.getElementById("f-gorsel").value = "";
   document.getElementById("file-preview").innerHTML = "";
-  window.selectedFiles = [];
-};
+  selectedFiles = [];
+}
 
-window.submitForm = async function() {
+async function submitForm() {
   const personel    = document.getElementById("f-personel").value;
   const alan        = document.getElementById("f-alan").value;
   const kontrolTuru = document.querySelector('input[name="kontrol_turu"]:checked')?.value || "";
@@ -137,7 +148,7 @@ window.submitForm = async function() {
   if (!alan)        return alert("Kontrol edilen alanı seçiniz.");
   if (!alanDurumu)  return alert("Alan durumu seçiniz.");
   if (!kontrolEden) return alert("Kontrol eden kişiyi seçiniz.");
-  if (!window.selectedFiles.length) return alert("En az bir görsel yükleyiniz.");
+  if (!selectedFiles.length) return alert("En az bir görsel yükleyiniz.");
 
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
@@ -145,7 +156,7 @@ window.submitForm = async function() {
 
   try {
     const imageUrls = [];
-    for (const file of window.selectedFiles) {
+    for (const file of selectedFiles) {
       imageUrls.push(await uploadToCloudinary(file));
     }
     await addDoc(collection(db, "kontroller"), {
@@ -161,7 +172,7 @@ window.submitForm = async function() {
     btn.disabled = false;
     btn.textContent = "Formu Gönder";
   }
-};
+}
 
 // ── RECORDS ───────────────────────────────────────────────────────────────────
 let allRecords = [];
@@ -203,14 +214,14 @@ function renderRecords(records) {
   }).join("");
 }
 
-window.filterRecords = function() {
+function filterRecords() {
   const q = document.getElementById("search-input").value.toLowerCase();
   const d = document.getElementById("filter-durum").value;
   renderRecords(allRecords.filter(r =>
     (!q || (r.alan||"").toLowerCase().includes(q) || (r.personel||"").toLowerCase().includes(q) || (r.kontrolEden||"").toLowerCase().includes(q)) &&
     (!d || r.alanDurumu === d)
   ));
-};
+}
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg) {
